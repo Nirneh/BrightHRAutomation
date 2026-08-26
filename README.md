@@ -76,6 +76,8 @@ page.getByTestId('sideBar');                          // fallback: no good acces
 
 `.github/workflows/playwright.yml` runs on every push/PR to `main`: checkout → install deps → type check → install browsers → run tests → upload the HTML report as a build artifact.
 
+Sandbox credentials are stored as GitHub Actions repo secrets (`TEST_USERNAME`, `TEST_PASSWORD`) and injected into the test step at runtime — never committed to source control.
+
 ## Known limitations & workarounds
 
 - **Signup checkbox bug (worked around, not our bug):** the employer-confirmation checkbox's `<label for>` doesn't match its input `id`, so a mouse click never toggles it. `SignupPage.ts` focuses the input and sends a keyboard `Space` instead — see the comment there for why.
