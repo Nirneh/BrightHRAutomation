@@ -1,34 +1,48 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { expect, type Page, type Locator } from '@playwright/test';
 import type { Employee } from '../test-data/factories.js';
 
 export class EmployeesPage {
-  readonly addAnotherEmployeeButton: Locator;
-  readonly closeModalButton: Locator;
-  readonly employeeListHeading: Locator;
+  private readonly sidebarEmployeesLink: Locator;
+  private readonly addEmployeeButton: Locator;
+  private readonly addAnotherEmployeeButton: Locator;
+  private readonly firstNameInput: Locator;
+  private readonly lastNameInput: Locator;
+  private readonly emailAddressInput: Locator;
+  private readonly phoneNumberInput: Locator;
+  private readonly jobTitleInput: Locator;
+  private readonly saveNewEmployeeButton: Locator;
+  private readonly closeModalButton: Locator;
+  private readonly employeeListHeading: Locator;
 
   constructor(private readonly page: Page) {
+    this.sidebarEmployeesLink = page.getByTestId('sideBar').getByRole('link', { name: 'Employees' });
+    this.addEmployeeButton = page.getByRole('button', { name: 'Add employee' });
     this.addAnotherEmployeeButton = page.getByRole('button', { name: 'Add another employee' });
+    this.firstNameInput = page.getByLabel('First name');
+    this.lastNameInput = page.getByLabel('Last name');
+    this.emailAddressInput = page.getByLabel('Email address');
+    this.phoneNumberInput = page.getByLabel('Phone number(optional)');
+    this.jobTitleInput = page.getByLabel('Job title(optional)');
+    this.saveNewEmployeeButton = page.getByRole('button', { name: 'Save new employee' });
     this.closeModalButton = page.getByLabel('Close modal');
     this.employeeListHeading = page.getByRole('heading', { name: /^Employees \(\d+\)$/ });
   }
 
   async open(): Promise<void> {
     await this.page.goto('/dashboard');
-    await this.page.getByTestId('sideBar').getByRole('link', { name: 'Employees' }).click();
+    await this.sidebarEmployeesLink.click();
   }
 
   async addEmployee(employee: Employee, isFirst: boolean): Promise<void> {
-    const addButton = isFirst
-      ? this.page.getByRole('button', { name: 'Add employee' })
-      : this.addAnotherEmployeeButton;
+    const addButton = isFirst ? this.addEmployeeButton : this.addAnotherEmployeeButton;
 
     await addButton.click();
-    await this.page.getByLabel('First name').fill(employee.firstName);
-    await this.page.getByLabel('Last name').fill(employee.lastName);
-    await this.page.getByLabel('Email address').fill(employee.email);
-    await this.page.getByLabel('Phone number(optional)').fill(employee.phoneNumber);
-    await this.page.getByLabel('Job title(optional)').fill(employee.jobTitle);
-    await this.page.getByRole('button', { name: 'Save new employee' }).click();
+    await this.firstNameInput.fill(employee.firstName);
+    await this.lastNameInput.fill(employee.lastName);
+    await this.emailAddressInput.fill(employee.email);
+    await this.phoneNumberInput.fill(employee.phoneNumber);
+    await this.jobTitleInput.fill(employee.jobTitle);
+    await this.saveNewEmployeeButton.click();
   }
 
   async closeSuccessDialog(): Promise<void> {
