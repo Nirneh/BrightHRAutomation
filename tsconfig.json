@@ -10,7 +10,6 @@
   },
   "include": [
     "BrightHR/**/*.ts",
-    "src/**/*.ts",
     "playwright.config.ts"
   ]
 }

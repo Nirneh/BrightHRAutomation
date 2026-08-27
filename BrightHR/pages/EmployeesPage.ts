@@ -46,13 +46,17 @@ export class EmployeesPage {
     await this.selectStartDate(new Date());
     await this.jobTitleInput.fill(employee.jobTitle);
     await this.saveNewEmployeeButton.click();
+    // Fail fast, right at the point of failure, if the save didn't actually succeed.
+    await expect(this.page.getByText(`${employee.firstName} added to BrightHR Lite`)).toBeVisible();
   }
 
   private async selectStartDate(date: Date): Promise<void> {
     await this.startDateInput.click();
-    // The calendar's day-cell title is `Tooltip for date: ${Date.toString()}`. Matching only
-    // the toDateString() prefix (weekday/month/day/year) avoids the time/timezone suffix,
-    // which differs between local runs and CI.
+    // The calendar's day-cell title is `Tooltip for date: ${Date.toString()}`, rendered by the
+    // *browser* in its own timezone, while `date` is built in *Node*. Both are pinned to the same
+    // zone (timezoneId/TZ in playwright.config.ts) for determinism, but matching only the
+    // toDateString() prefix (weekday/month/day/year) sidesteps the time/timezone suffix
+    // altogether, so the two clocks don't need to agree exactly to find the right cell.
     await this.page.locator(`[title^="Tooltip for date: ${date.toDateString()}"]`).click();
   }
 
@@ -68,6 +72,7 @@ export class EmployeesPage {
         .getByRole('heading', { name: `${employee.firstName} ${employee.lastName}` })
         .first();
       await expect(card).toBeVisible({ timeout: 10_000 });
+      await expect(card.locator('..').getByText(employee.jobTitle)).toBeVisible();
     }
   }
 }
