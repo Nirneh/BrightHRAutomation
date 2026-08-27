@@ -9,6 +9,7 @@ export class EmployeesPage {
   private readonly lastNameInput: Locator;
   private readonly emailAddressInput: Locator;
   private readonly phoneNumberInput: Locator;
+  private readonly startDateInput: Locator;
   private readonly jobTitleInput: Locator;
   private readonly saveNewEmployeeButton: Locator;
   private readonly closeModalButton: Locator;
@@ -22,6 +23,7 @@ export class EmployeesPage {
     this.lastNameInput = page.getByLabel('Last name');
     this.emailAddressInput = page.getByLabel('Email address');
     this.phoneNumberInput = page.getByLabel('Phone number(optional)');
+    this.startDateInput = page.getByLabel('Start date (optional)');
     this.jobTitleInput = page.getByLabel('Job title(optional)');
     this.saveNewEmployeeButton = page.getByRole('button', { name: 'Save new employee' });
     this.closeModalButton = page.getByLabel('Close modal');
@@ -41,8 +43,17 @@ export class EmployeesPage {
     await this.lastNameInput.fill(employee.lastName);
     await this.emailAddressInput.fill(employee.email);
     await this.phoneNumberInput.fill(employee.phoneNumber);
+    await this.selectStartDate(new Date());
     await this.jobTitleInput.fill(employee.jobTitle);
     await this.saveNewEmployeeButton.click();
+  }
+
+  private async selectStartDate(date: Date): Promise<void> {
+    await this.startDateInput.click();
+    // The calendar's day-cell title is `Tooltip for date: ${Date.toString()}`. Matching only
+    // the toDateString() prefix (weekday/month/day/year) avoids the time/timezone suffix,
+    // which differs between local runs and CI.
+    await this.page.locator(`[title^="Tooltip for date: ${date.toDateString()}"]`).click();
   }
 
   async closeSuccessDialog(): Promise<void> {
